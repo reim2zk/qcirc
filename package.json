@@ -7,12 +7,19 @@
     "build": "webpack",
     "watch": "wabpack -w"
   },
+  "resolutions": {
+    "**/**/fsevents": "^1.2.9"
+  },
+  "devDependencies": {
+    "ts-loader": "^5.4.3",
+    "typescript": "^3.4.4",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1"
+  },
   "dependencies": {
-    "@types/d3": "^5.7.2",
-    "d3": "^5.15.0",
-    "ts-loader": "^6.2.1",
-    "typescript": "^3.7.4",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
-  }
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.0.2"
+  },
+  "repository": "git@github.com:reim2zk/qcirc.git",
+  "author": "Matsuzaki Rei <matsuzaki.rei@gmail.com>"
 }

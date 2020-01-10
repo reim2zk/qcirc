@@ -1,5 +1,11 @@
-import * as d3 from 'd3';
+import Vue from 'vue';
 
-d3.select("p")
+new Vue({
+    el: '#app',
+    template: `<div class="app">
+        <h1>
+            Hello, Vue.js
+        </h1>
+    </div>`
+})
 
-console.log("Hello")

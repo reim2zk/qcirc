@@ -10,25 +10,26 @@ module.exports = {
 
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: 'qcirc.js'
+        filename: 'index.js'
     },
 
     devtool: 'source-map',
-
-    // import 文で .ts ファイルを解決するため
-    resolve: {
-        extensions: [".ts", ".tsx", ".js"]
-    },
   
     module: {
       rules: [
         {
           // 拡張子 .ts の場合
-          test: /\.tsx?$/,
+          test: /\.ts$/,
           // TypeScript をコンパイルする
-          use: "ts-loader",
-          exclude: /node_modules/
+          use: "ts-loader"
         }
       ]
+    },
+
+    resolve: {
+      extensions: [".ts"],
+      alias: {
+        vue: "vue/dist/vue.js"
+      }
     }
   };
