@@ -3,6 +3,8 @@ import Vue from 'vue';
 class Gate {
     indexQbit: number
     position: number
+    width: number = 20
+    height: number = 20
     text: string
     color: string
     constructor(indexQbit:number, position: number, text: string, color: string) {
@@ -11,16 +13,25 @@ class Gate {
         this.text = text
         this.color = color
     }
+    x(): number { return this.position * this.width}
+    y(): number { return this.indexQbit * this.height}
 }
+
 class Hadamal extends Gate {    
     constructor(indexQbit:number, position: number) {
         super(indexQbit, position, "H", "black")
     }    
 }
+
 class XGate extends Gate {    
     constructor(indexQbit:number, position: number) {
-        super(indexQbit, position, "X", "black")
+        super(indexQbit, position, "X", "red")
     }    
+}
+
+function selectGate(e: any) {
+    console.log("Select")
+
 }
 
 const gates: Gate[] = [
@@ -28,43 +39,62 @@ const gates: Gate[] = [
     new Hadamal(1, 2),
     new XGate(1, 4)
 ]
-
+Vue.component('hadamal', {
+    props: {
+        gate: Hadamal,
+    },    
+    methods: {
+        selectGate: selectGate,
+    },
+    template: `<rect
+        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:width="gate.width" v-bind:height="gate.height"
+        v-bind:stroke="gate.color"
+        fill="yellow"
+        v-on:click="selectGate"
+    ></rect>
+    `
+})
+Vue.component('x-gate', {
+    props: {
+        gate: XGate,
+    },
+    methods: {
+        selectGate: selectGate,
+    },
+    template: `<rect
+        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:width="gate.width" v-bind:height="gate.height"
+        v-bind:stroke="gate.color"
+        fill="white"
+        v-on:click="selectGate"
+    ></rect>
+    `
+})
 Vue.component('gate', {
     props: {
         gate: Gate,
-        width: {type: Number, default: 20},
-        height: {type: Number, default: 20},
     },
     methods: {
-        x: function(): number {
-            return this.gate.position * this.width
-        },
-        y: function(): number {
-            return this.gate.indexQbit * this.height
-        },
-        color: function(): string {
-            if(this.gate instanceof Hadamal) {
-                return "red"
-            } else if (this.gate instanceof XGate) {
-                return "blue"                
+        hadamal: function(): Hadamal | null {            
+            if (this.gate instanceof Hadamal) {
+                return this.gate
             } else {
-                return "yellow"
+                return null
             }
         },
-        select: function(e: any): void {
-            console.log("select")
-            console.log(this.$emit)
-            this.$emit.selectGate(e, this)
+        xGate: function(): XGate | null {
+            if (this.gate instanceof XGate) {
+                return this.gate
+            } else {
+                return null
+            }
         }
     },
-    template: `<rect
-        v-bind:x="x()" v-bind:y="y()" 
-        v-bind:width="this.width" v-bind:height="height"
-        v-bind:stroke="color()"
-        fill="white"
-        v-on:click="select"
-    ></rect>
-    `
+    template: `
+    <hadamal v-if="hadamal()" v-bind:gate="hadamal()"></hadamal>
+    <x-gate v-else-if="xGate()" v-bind:gate="xGate()"></x-gate>
+    `    
 })
 
 new Vue(
