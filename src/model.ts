@@ -22,29 +22,31 @@ export class Circuit {
 export class Gate {
     indexQbit: number
     position: number
-    width: number = 20
-    height: number = 30
+    readonly circuit: Circuit
     diameter: number = 15
     text: string
     color: string
-    constructor(indexQbit:number, position: number, text: string, color: string) {
+    constructor(circuit: Circuit, indexQbit:number, position: number, text: string, color: string) {
+        this.circuit = circuit
         this.indexQbit = indexQbit
         this.position = position
         this.text = text
         this.color = color
     }
-    x(): number { return (this.position+1) * this.width - this.diameter/2}
-    y(): number { return (this.indexQbit+1) * this.height - this.diameter/2}
+    width(): number { return this.circuit.unitWidth }
+    height(): number { return this.circuit.unitHeight }
+    x(): number { return (this.position+1) * this.width() - this.diameter/2}
+    y(): number { return (this.indexQbit+1) * this.height() - this.diameter/2}
 }
 
 export class Hadamal extends Gate {    
-    constructor(indexQbit:number, position: number) {
-        super(indexQbit, position, "H", "black")
+    constructor(circuit: Circuit, indexQbit:number, position: number) {
+        super(circuit, indexQbit, position, "H", "black")
     }    
 }
 
 export class XGate extends Gate {    
-    constructor(indexQbit:number, position: number) {
-        super(indexQbit, position, "X", "red")
+    constructor(circuit: Circuit, indexQbit:number, position: number) {
+        super(circuit, indexQbit, position, "X", "red")
     }    
 }

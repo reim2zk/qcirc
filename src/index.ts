@@ -55,7 +55,8 @@ Vue.component('hadamal', {
     },
     template: `<rect
         v-bind:x="gate.x()" v-bind:y="gate.y()" 
-        v-bind:width="gate.diameter" v-bind:height="gate.diameter"
+        v-bind:width="gate.diameter" 
+        v-bind:height="gate.diameter"
         v-bind:stroke="gate.color"
         fill="yellow"
         v-on:click="selectGate"
@@ -79,15 +80,13 @@ Vue.component('x-gate', {
     `
 })
 
-const gates: Gate[] = [
-    new Hadamal(0, 0),
-    new Hadamal(1, 0),
-    new Hadamal(2, 0),
-    new Hadamal(1, 1),
-    new Hadamal(1, 2),
-    new XGate(1, 4)
-]
-const circuit = new Circuit(5, gates)
+const circuit = new Circuit(5, [])
+circuit.gates.push(new Hadamal(circuit, 0, 0))
+circuit.gates.push(new Hadamal(circuit, 1, 0))
+circuit.gates.push(new Hadamal(circuit, 1, 1))
+circuit.gates.push(new Hadamal(circuit, 1, 2))
+circuit.gates.push(new XGate(circuit, 1, 4))
+circuit.gates.push(new Hadamal(circuit, 2, 0))
 
 new Vue(
 {
