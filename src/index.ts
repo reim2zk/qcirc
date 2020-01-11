@@ -1,48 +1,25 @@
 import Vue from 'vue';
-import {Gate, Hadamal, XGate} from './model'
+import {Gate, Hadamal, XGate, Circuit} from './model'
 
 function selectGate(e: any) {
     console.log("Select")
 
 }
 
-const gates: Gate[] = [
-    new Hadamal(0, 1),
-    new Hadamal(1, 2),
-    new XGate(1, 4)
-]
-Vue.component('hadamal', {
+Vue.component('circuit', {
     props: {
-        gate: Hadamal,
-    },    
-    methods: {
-        selectGate: selectGate,
+        value: Circuit
     },
-    template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
-        v-bind:width="gate.width" v-bind:height="gate.height"
-        v-bind:stroke="gate.color"
-        fill="yellow"
-        v-on:click="selectGate"
-    ></rect>
+    template: `
+    <svg v-bind:width="value.width()" v-bind:height="value.height()">
+        <line v-for="y in value.wireYs()" x1="0" v-bind:y1="y" x2="100" v-bind:y2="y" stroke="black"></line>
+        <template v-for="gate in value.gates">
+            <gate v-bind:gate="gate"></gate>
+        </template>
+    </svg>
     `
 })
-Vue.component('x-gate', {
-    props: {
-        gate: XGate,
-    },
-    methods: {
-        selectGate: selectGate,
-    },
-    template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
-        v-bind:width="gate.width" v-bind:height="gate.height"
-        v-bind:stroke="gate.color"
-        fill="white"
-        v-on:click="selectGate"
-    ></rect>
-    `
-})
+
 Vue.component('gate', {
     props: {
         gate: Gate,
@@ -69,6 +46,49 @@ Vue.component('gate', {
     `    
 })
 
+Vue.component('hadamal', {
+    props: {
+        gate: Hadamal,
+    },    
+    methods: {
+        selectGate: selectGate,
+    },
+    template: `<rect
+        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:width="gate.diameter" v-bind:height="gate.diameter"
+        v-bind:stroke="gate.color"
+        fill="yellow"
+        v-on:click="selectGate"
+    ></rect>
+    `
+})
+Vue.component('x-gate', {
+    props: {
+        gate: XGate,
+    },
+    methods: {
+        selectGate: selectGate,
+    },
+    template: `<rect
+        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:width="gate.diameter" v-bind:height="gate.diameter"
+        v-bind:stroke="gate.color"
+        fill="white"
+        v-on:click="selectGate"
+    ></rect>
+    `
+})
+
+const gates: Gate[] = [
+    new Hadamal(0, 0),
+    new Hadamal(1, 0),
+    new Hadamal(2, 0),
+    new Hadamal(1, 1),
+    new Hadamal(1, 2),
+    new XGate(1, 4)
+]
+const circuit = new Circuit(5, gates)
+
 new Vue(
 {
     el: '#app',
@@ -76,7 +96,7 @@ new Vue(
         title: 'he',
         x: 10,
         y: 10,
-        gates: gates
+        circuit: circuit
     },
     filters: {
         strPlus2: function (value: string): string {

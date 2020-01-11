@@ -17,23 +17,7 @@
         <div id="app">
             <button id="b-button" v-bind:title="title | strPlus2">purchase</button>
             <br>
-            <svg width="500px" height="500px">
-                <template v-for="(gate, i) in gates">                
-                    <gate v-bind:gate="gate">
-                    </gate>
-                </template>
-                <!-- <template v-for="(gate, i) in gates">
-                    <rect
-                    v-bind:key="i"
-                    width="30px"
-                    height="30px"
-                    v-bind:x="gate.position"
-                    v-bind:y="gate.indexQbit"
-                    v-on:mousedown="selectGate($event, gate)"
-                    >
-                    </rect>
-                </template> -->
-            </svg>
+            <circuit v-bind:value="circuit"></circuit>
         </div>
     </body>
 </html>
