@@ -1,33 +1,5 @@
 import Vue from 'vue';
-
-class Gate {
-    indexQbit: number
-    position: number
-    width: number = 20
-    height: number = 20
-    text: string
-    color: string
-    constructor(indexQbit:number, position: number, text: string, color: string) {
-        this.indexQbit = indexQbit
-        this.position = position
-        this.text = text
-        this.color = color
-    }
-    x(): number { return this.position * this.width}
-    y(): number { return this.indexQbit * this.height}
-}
-
-class Hadamal extends Gate {    
-    constructor(indexQbit:number, position: number) {
-        super(indexQbit, position, "H", "black")
-    }    
-}
-
-class XGate extends Gate {    
-    constructor(indexQbit:number, position: number) {
-        super(indexQbit, position, "X", "red")
-    }    
-}
+import {Gate, Hadamal, XGate} from './model'
 
 function selectGate(e: any) {
     console.log("Select")
