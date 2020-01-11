@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="UTF-8"/>
-        <script defer src="./dist/index.js"></script>        
+        <script defer src="./dist/index.js"></script>
     </head>
     <body>
         <table>
@@ -14,7 +14,28 @@
                 <td>B</td>
             </tr>
         </table>
-        <div id="app"></div>
+        <div id="app">
+            <button id="b-button" v-bind:title="title | strPlus2">purchase</button>
+            <br>
+            <svg width="500px" height="500px">
+                </hadamal>
+                <template v-for="(gate, i) in gates">                
+                    <hadamal v-bind:gate="gate">
+                    </hadamal>
+                </template>
+                <!-- <template v-for="(gate, i) in gates">
+                    <rect
+                    v-bind:key="i"
+                    width="30px"
+                    height="30px"
+                    v-bind:x="gate.position"
+                    v-bind:y="gate.indexQbit"
+                    v-on:mousedown="selectGate($event, gate)"
+                    >
+                    </rect>
+                </template> -->
+            </svg>
+        </div>
     </body>
 </html>
 
