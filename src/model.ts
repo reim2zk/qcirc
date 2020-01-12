@@ -1,9 +1,10 @@
-export enum GateType {H, X, CN, C, N}
+export enum GateType {H, X, CN}
 export function gateTypeName(gateType: GateType): string | null{
     const map = new Map([[GateType.H, "H"], [GateType.X, "X"]])
     const res = map.get(gateType)
     return res ? res : null
 }
+
 
 export class Circuit {
     numQbit: number
@@ -32,8 +33,6 @@ export class Circuit {
         const oneGates: OneGate[] = this.gates.flatMap(v => {
             if(v instanceof OneGate) {
                 return [v]
-            } else if(v instanceof CNot) {
-                return [v.notGate, v.controlGate]
             } else {
                 return []
             }
@@ -48,9 +47,7 @@ export class Circuit {
         switch(type) {
             case GateType.H: g = new Hadamal(this, 0, 0); break
             case GateType.X: g = new XGate(this, 0, 0); break
-            case GateType.CN: g = new CNot(this, 0, 1, 0); break
-            case GateType.C: g = new ControlGate(this, 0, 0); break
-            case GateType.N: g = new NotGate(this, 0, 0); break
+            case GateType.CN: g = new ControledNot(this, 0, 1, 0); break
         }
         return g
     }
@@ -58,32 +55,33 @@ export class Circuit {
 
 export class Gate {
     type: GateType
-    constructor(type: GateType) {
-        this.type = type
-    }
-}
-
-export class CNot extends Gate {
     readonly circuit: Circuit
-    controlGate: ControlGate
-    notGate: NotGate
-    constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
-        super(GateType.CN)
+    constructor(type: GateType, circuit: Circuit) {
+        this.type = type
         this.circuit = circuit
-        this.controlGate = new ControlGate(circuit, indexQbit1, position)
-        this.notGate = new NotGate(circuit, indexQbit2, position)
     }
 }
 
+export class ControledNot extends Gate {
+    indexQbitControl: number
+    indexQbitNot: number
+    position: number
+    constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
+        super(GateType.CN, circuit)
+        this.indexQbitControl = indexQbit1
+        this.indexQbitNot = indexQbit2
+        this.position = position
+    }
+    x(): number { return this.circuit.x(this.position, 0) } 
+    yControl(): number { return this.circuit.y(this.indexQbitControl, 0) }
+    yNot(): number { return this.circuit.y(this.indexQbitNot, 0) }
+}
 export class OneGate extends Gate {
-    readonly circuit: Circuit    
     indexQbit: number
     position: number
-    
     diameter: number = 15
     constructor(type: GateType, circuit: Circuit, indexQbit:number, position: number) {
-        super(type)
-        this.circuit = circuit
+        super(type, circuit)
         this.indexQbit = indexQbit
         this.position = position
     }
@@ -98,18 +96,6 @@ export class OneGate extends Gate {
     } 
     setY(y: number): void { 
         this.indexQbit = this.circuit.indexQbit(y)
-    }
-}
-
-export class ControlGate extends OneGate {
-    constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(GateType.C, circuit, indexQbit, position)
-    }
-}
-
-export class NotGate extends OneGate {
-    constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(GateType.N, circuit, indexQbit, position)
     }
 }
 
