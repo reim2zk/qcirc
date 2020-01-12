@@ -17,36 +17,72 @@ export class Circuit {
         }
         return ys
     }
+    x(position: number, r: number): number { return (position+1) * this.unitWidth - r}
+    y(indexQbit: number, r: number): number { return (indexQbit+1) * this.unitHeight - r}
 }
 
-export class Gate {
+export class Gate {}
+
+export class CNot extends Gate {
+    readonly circuit: Circuit
+    indexQbit1: number
+    indexQbit2: number
+    position: number
+    diameter: number = 5
+    controlGate: ControlGate
+    notGate: NotGate
+    constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
+        super()
+        this.circuit = circuit
+        this.indexQbit1 = indexQbit1
+        this.indexQbit2 = indexQbit2
+        this.position = position
+        this.controlGate = new ControlGate(circuit, indexQbit1, position)
+        this.notGate = new NotGate(circuit, indexQbit2, position)
+    }
+    x(): number { return this.circuit.x(this.position, 0) }
+    y1(): number { return this.circuit.y(this.indexQbit1, 0) }
+    y2(): number { return this.circuit.y(this.indexQbit2, 0) }
+}
+
+export class OneGate extends Gate {
+    readonly circuit: Circuit    
     indexQbit: number
     position: number
-    readonly circuit: Circuit
+    
     diameter: number = 15
-    text: string
-    color: string
-    constructor(circuit: Circuit, indexQbit:number, position: number, text: string, color: string) {
+    constructor(circuit: Circuit, indexQbit:number, position: number) {
+        super()
         this.circuit = circuit
         this.indexQbit = indexQbit
         this.position = position
-        this.text = text
-        this.color = color
     }
     width(): number { return this.circuit.unitWidth }
     height(): number { return this.circuit.unitHeight }
-    x(): number { return (this.position+1) * this.width() - this.diameter/2}
-    y(): number { return (this.indexQbit+1) * this.height() - this.diameter/2}
+    x(): number { return this.circuit.x(this.position, this.diameter/2) }
+    y(): number { return this.circuit.y(this.indexQbit, this.diameter/2) }
 }
 
-export class Hadamal extends Gate {    
-    constructor(circuit: Circuit, indexQbit:number, position: number) {
-        super(circuit, indexQbit, position, "H", "black")
+export class ControlGate extends OneGate {
+    constructor(circuit: Circuit, indexQbit: number, position: number) {
+        super(circuit, indexQbit, position)
+    }
+}
+
+export class NotGate extends OneGate {
+    constructor(circuit: Circuit, indexQbit: number, position: number) {
+        super(circuit, indexQbit, position)
+    }
+}
+
+export class Hadamal extends OneGate {    
+    constructor(circuit: Circuit, indexQbit: number, position: number) {
+        super(circuit, indexQbit, position)
     }    
 }
 
-export class XGate extends Gate {    
-    constructor(circuit: Circuit, indexQbit:number, position: number) {
-        super(circuit, indexQbit, position, "X", "red")
+export class XGate extends OneGate {
+    constructor(circuit: Circuit, indexQbit: number, position: number) {
+        super(circuit, indexQbit, position)
     }    
 }
