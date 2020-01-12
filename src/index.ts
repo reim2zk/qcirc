@@ -78,7 +78,12 @@ Vue.component('cnot', {
         gate: CNot
     },
     template: `<svg>
-    <line :x1="gate.x()" :x2="gate.x()" :y1="gate.y1()" :y2="gate.y2()" stroke="black"/>
+    <line 
+        :x1="gate.controlGate.x()" 
+        :x2="gate.notGate.x()" 
+        :y1="gate.controlGate.y()" 
+        :y2="gate.notGate.y()" 
+        stroke="black"/>
     <gate v-bind:gate="gate.controlGate"></gate>
     <gate v-bind:gate="gate.notGate"></gate>
     </svg>
@@ -89,7 +94,7 @@ Vue.component('control-gate', {
         gate: ControlGate,
     },    
     template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" 
         v-bind:height="gate.diameter"
         stroke="black"
@@ -102,7 +107,7 @@ Vue.component('not-gate', {
         gate: OneGate,
     },
     template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" 
         v-bind:height="gate.diameter"
         stroke="black"
@@ -115,7 +120,7 @@ Vue.component('hadamal', {
         gate: Hadamal,
     },    
     template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" 
         v-bind:height="gate.diameter"
         stroke="black"
@@ -128,7 +133,7 @@ Vue.component('x-gate', {
         gate: XGate,
     },
     template: `<rect
-        v-bind:x="gate.x()" v-bind:y="gate.y()" 
+        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" v-bind:height="gate.diameter"
         stroke="black"
         fill="white"
