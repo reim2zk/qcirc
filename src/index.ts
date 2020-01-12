@@ -7,16 +7,23 @@ circuit.gates.push(new Hadamal(circuit, 1, 2))
 circuit.gates.push(new XGate(circuit, 1, 4))
 circuit.gates.push(new Hadamal(circuit, 2, 0))
 
-let selectedOneGate: OneGate | null = null
+let selectedOneGate: Gate | null = null
+let partIndex: number = 0
 function down(e: MouseEvent) {
-    if(!selectedOneGate) {        
-        selectedOneGate = circuit.findOneGate(e.offsetX, e.offsetY)
+    if(!selectedOneGate) {
+        const position = circuit.position(e.offsetX)
+        const indexQbit = circuit.indexQbit(e.offsetY)
+        const res = circuit.findGate(position, indexQbit)
+        if(res) {
+            selectedOneGate = res.gate
+            partIndex = res.index
+        }        
     }
 }
 function move(e: MouseEvent) {
-    if(selectedOneGate) {
-        selectedOneGate.setX(e.offsetX)
-        selectedOneGate.setY(e.offsetY)
+    if(selectedOneGate) {        
+        selectedOneGate.setX(e.offsetX, partIndex)
+        selectedOneGate.setY(e.offsetY, partIndex)
     }
 }
 function up(e: MouseEvent) {
@@ -94,7 +101,7 @@ Vue.component('circuit', {
 
 Vue.component('gate', {
     props: {
-        gate: Gate,
+        gate: Gate
     },
     methods: {
         controledNot: function(): ControledNot | null {
@@ -151,10 +158,10 @@ Vue.component('hadamal', {
         fill="yellow"
     >
     </rect>
-    <text 
+    <!-- <text 
         :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
         H
-    </text>
+    </text> -->
     </svg>
     `
 })
@@ -168,10 +175,10 @@ Vue.component('x-gate', {
         v-bind:width="gate.diameter" v-bind:height="gate.diameter"
         fill="cyan">
     </rect>
-    <text 
+    <!-- <text 
         :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
     X
-    </text>
+    </text> -->
     </svg>
     `
 })
