@@ -13,12 +13,14 @@ export class Circuit {
     wireYs(): number[] { 
         let ys = []
         for(let i = 0; i < this.numQbit; i++) {
-            ys.push( (i + 1) * this.unitHeight)
+            ys.push(this.y(i, 0.0))
         }
         return ys
     }
-    x(position: number, r: number): number { return (position+1) * this.unitWidth - r}
-    y(indexQbit: number, r: number): number { return (indexQbit+1) * this.unitHeight - r}
+    x(position: number, r: number): number { return (position+0.5) * this.unitWidth - r}
+    y(indexQbit: number, r: number): number { return (indexQbit+0.5) * this.unitHeight - r}
+    position(x: number): number { return Math.floor(x / this.unitWidth) }
+    indexQbit(y: number): number { return Math.floor(y / this.unitHeight) }
 }
 
 export class Gate {}
@@ -61,6 +63,12 @@ export class OneGate extends Gate {
     height(): number { return this.circuit.unitHeight }
     x(): number { return this.circuit.x(this.position, this.diameter/2) }
     y(): number { return this.circuit.y(this.indexQbit, this.diameter/2) }
+    setX(x: number): void { 
+        this.position = this.circuit.position(x)
+    } 
+    setY(y: number): void { 
+        this.indexQbit = this.circuit.indexQbit(y)
+    }
 }
 
 export class ControlGate extends OneGate {

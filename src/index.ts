@@ -1,17 +1,40 @@
 import Vue from 'vue';
 import {Gate, CNot, Hadamal, XGate, ControlGate, NotGate, OneGate, Circuit} from './model'
 
-function selectGate(e: any) {
-    console.log("Select")
-
+let selectedOneGate: OneGate | null = null
+function selectOneGate(e: any, gate: OneGate) {    
+    if(!selectedOneGate) {
+        console.log("Select one gate")
+        selectedOneGate = gate
+    }    
+}
+function move(e: MouseEvent) {
+    if(selectedOneGate) {
+        selectedOneGate.setX(e.offsetX)
+        selectedOneGate.setY(e.offsetY)
+    }
+}
+function down(e: any) {
+    if(selectedOneGate) {        
+        console.log("click, null")
+        selectedOneGate = null
+    }
 }
 
 Vue.component('circuit', {
     props: {
         value: Circuit
     },
+    methods: {
+        move: move,
+        down: down
+    },
     template: `
-    <svg v-bind:width="value.width()" v-bind:height="value.height()">
+    <svg 
+        v-bind:width="value.width()" 
+        v-bind:height="value.height()" 
+        v-on:mousemove="move"
+        v-on:mousedown="down">
         <line v-for="y in value.wireYs()" x1="0" v-bind:y1="y" x2="100" v-bind:y2="y" stroke="black"></line>
         <template v-for="gate in value.gates">
             <gate v-bind:gate="gate"></gate>
@@ -54,9 +77,6 @@ Vue.component('cnot', {
     props: {
         gate: CNot
     },
-    methods: { 
-        selectGate: selectGate
-    },
     template: `<svg>
     <line :x1="gate.x()" :x2="gate.x()" :y1="gate.y1()" :y2="gate.y2()" stroke="black"/>
     <gate v-bind:gate="gate.controlGate"></gate>
@@ -69,7 +89,7 @@ Vue.component('control-gate', {
         gate: ControlGate,
     },    
     methods: {
-        selectGate: selectGate,
+        selectGate: selectOneGate,
     },
     template: `<rect
         v-bind:x="gate.x()" v-bind:y="gate.y()" 
@@ -77,7 +97,7 @@ Vue.component('control-gate', {
         v-bind:height="gate.diameter"
         stroke="black"
         fill="green"
-        v-on:click="selectGate"
+        v-on:click="selectGate($event, gate)"
     ></rect>
     `
 })
@@ -86,7 +106,7 @@ Vue.component('not-gate', {
         gate: OneGate,
     },    
     methods: {
-        selectGate: selectGate,
+        selectGate: selectOneGate,
     },
     template: `<rect
         v-bind:x="gate.x()" v-bind:y="gate.y()" 
@@ -94,7 +114,7 @@ Vue.component('not-gate', {
         v-bind:height="gate.diameter"
         stroke="black"
         fill="pink"
-        v-on:click="selectGate"
+        v-on:click="selectGate($event, gate)"
     ></rect>
     `
 })
@@ -103,7 +123,7 @@ Vue.component('hadamal', {
         gate: Hadamal,
     },    
     methods: {
-        selectGate: selectGate,
+        selectGate: selectOneGate,
     },
     template: `<rect
         v-bind:x="gate.x()" v-bind:y="gate.y()" 
@@ -111,7 +131,7 @@ Vue.component('hadamal', {
         v-bind:height="gate.diameter"
         stroke="black"
         fill="yellow"
-        v-on:click="selectGate"
+        v-on:click="selectGate($event, gate)"
     ></rect>
     `
 })
@@ -120,14 +140,14 @@ Vue.component('x-gate', {
         gate: XGate,
     },
     methods: {
-        selectGate: selectGate,
+        selectGate: selectOneGate,
     },
     template: `<rect
         v-bind:x="gate.x()" v-bind:y="gate.y()" 
         v-bind:width="gate.diameter" v-bind:height="gate.diameter"
         stroke="black"
         fill="white"
-        v-on:click="selectGate"
+        v-on:click="selectGate($event, gate)"
     ></rect>
     `
 })
@@ -152,13 +172,4 @@ new Vue(
             return value + "2"
         }
     },
-    methods: {
-        selectGate: function (event: any, gate: Gate): void {
-            console.log("my click")
-            console.log(gate)
-            console.log(event)
-            console.log(event.toElement)
-            this.x += 1
-        }
-    }
 })
