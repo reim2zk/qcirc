@@ -151,17 +151,20 @@ Vue.component('hadamal', {
     props: {
         gate: Hadamal,
     },    
-    template: `<svg><rect
+    template: `<svg>
+    <rect
         v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" 
         v-bind:height="gate.diameter"
         fill="yellow"
-    >
+    >    
     </rect>
-    <!-- <text 
-        :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
-        H
-    </text> -->
+    <text 
+    :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" 
+    text-anchor="middle" dominant-baseline="central"
+    style="user-select: none">
+    H
+</text>
     </svg>
     `
 })
@@ -175,10 +178,12 @@ Vue.component('x-gate', {
         v-bind:width="gate.diameter" v-bind:height="gate.diameter"
         fill="cyan">
     </rect>
-    <!-- <text 
-        :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
-    X
-    </text> -->
+    <text 
+    :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" 
+    text-anchor="middle" dominant-baseline="central"
+    style="user-select: none">
+        X
+    </text>
     </svg>
     `
 })
