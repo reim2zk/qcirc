@@ -4,20 +4,10 @@
         <script defer src="./dist/index.js"></script>
     </head>
     <body>
-        <table>
-            <tr>
-                <td>name</td>
-                <td>hello</td>
-            </tr>
-            <tr>
-                <td>A</td>
-                <td>B</td>
-            </tr>
-        </table>
         <div id="app">
-            <button id="b-button" v-bind:title="title | strPlus2">purchase</button>
+            <circuit-ui></circuit-ui>
             <br>
-            <circuit v-bind:value="circuit"></circuit>
+            <circuit v-bind:circuit="circuit"></circuit>
         </div>
     </body>
 </html>
