@@ -27,11 +27,12 @@ function up(e: MouseEvent) {
 function add(gateType: GateType) {
     if(!selectedOneGate) {
         const gate = circuit.emptyGate(gateType)
+        console.log(gate)
         if(gate instanceof OneGate) {
             selectedOneGate = gate
         } else if(gate instanceof CNot) {
             selectedOneGate = gate.controlGate
-        }
+        }        
         circuit.gates.push(gate)
     }
 }
@@ -42,6 +43,7 @@ export class GateNameTypes {
         const values = []
         values.push({name: "H", type: GateType.H})
         values.push({name: "X", type: GateType.X})
+        values.push({name: "CN", type: GateType.CN})
         return new GateNameTypes(values)
     }
     constructor(values: {name: string, type: GateType}[]) {
@@ -60,7 +62,12 @@ Vue.component('circuit-ui', {
         add: add
     },
     template: `
-    <button v-on:click="add(gateNameTypes.values[0].type)">hello</button>        
+    <span>
+        <button v-for="nameType in gateNameTypes.values" 
+        v-on:click="add(nameType.type)">
+        {{nameType.name}}
+        </button>        
+    </span>
     `
 })
 

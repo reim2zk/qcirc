@@ -41,11 +41,11 @@ export class Circuit {
     emptyGate(type: GateType): Gate {
         let g: Gate
         switch(type) {
-            case GateType.H: g = new Hadamal(this, 0, 0)
-            case GateType.X: g = new XGate(this, 0, 0)
-            case GateType.CN: g = new CNot(this, 0, 1, 0)
-            case GateType.C: g = new ControlGate(this, 0, 0)
-            case GateType.N: g = new NotGate(this, 0, 0)
+            case GateType.H: g = new Hadamal(this, 0, 0); break
+            case GateType.X: g = new XGate(this, 0, 0); break
+            case GateType.CN: g = new CNot(this, 0, 1, 0); break
+            case GateType.C: g = new ControlGate(this, 0, 0); break
+            case GateType.N: g = new NotGate(this, 0, 0); break
         }
         return g
     }
