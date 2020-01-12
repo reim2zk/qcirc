@@ -55,7 +55,6 @@ export class GateNameTypes {
     }
 }
 const gateNameTypes = GateNameTypes.default()
-console.log(gateNameTypes)
 Vue.component('circuit-ui', {
     data: function() {
         return {
@@ -107,6 +106,9 @@ Vue.component('gate', {
         controledNot: function(): ControledNot | null {
             return this.gate instanceof ControledNot ? this.gate : null
         },
+        oneGate: function(): OneGate | null {
+            return this.gate instanceof OneGate ? this.gate : null
+        },
         hadamal: function(): Hadamal | null {            
             return this.gate instanceof Hadamal ? this.gate : null
         },
@@ -116,8 +118,7 @@ Vue.component('gate', {
     },
     template: `
     <controled-not v-if="controledNot()" v-bind:gate="controledNot()"></controled-not>
-    <hadamal v-else-if="hadamal()" v-bind:gate="hadamal()"></hadamal>
-    <x-gate v-else-if="xGate()" v-bind:gate="xGate()"></x-gate>
+    <one-gate v-else-if="oneGate()" v-bind:gate="oneGate()"></one-gate>
     `    
 })
 Vue.component('controled-not', {
@@ -147,46 +148,43 @@ Vue.component('controled-not', {
         </svg>
         `
     })
-Vue.component('hadamal', {
-    props: {
-        gate: Hadamal,
-    },    
-    template: `<svg>
-    <rect
-        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
-        v-bind:width="gate.diameter" 
-        v-bind:height="gate.diameter"
-        fill="yellow"
-    >    
-    </rect>
-    <text 
-    :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" 
-    text-anchor="middle" dominant-baseline="central"
-    style="user-select: none">
-    H
-</text>
-    </svg>
-    `
-})
-Vue.component('x-gate', {
-    props: {
-        gate: XGate,
-    },
-    template: `<svg>
-    <rect
-        v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
-        v-bind:width="gate.diameter" v-bind:height="gate.diameter"
-        fill="cyan">
-    </rect>
-    <text 
-    :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" 
-    text-anchor="middle" dominant-baseline="central"
-    style="user-select: none">
-        X
-    </text>
-    </svg>
-    `
-})
+Vue.component('one-gate', {
+        props: {
+            gate: OneGate,
+        },
+        methods: {
+            color: function(): string {
+                switch(this.gate.type) {
+                    case GateType.H: return "cyan"; break
+                    case GateType.X: return "yellow"; break
+                }
+                return "cyan"
+            },
+            text: function(): string {
+                switch(this.gate.type) {
+                    case GateType.H: return "H"; break
+                    case GateType.X: return "X"; break
+                }
+                return "NotF"
+            }
+        },
+        template: `<svg>
+        <rect
+            v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
+            v-bind:width="gate.diameter" 
+            v-bind:height="gate.diameter"
+            :fill="color()"
+        >    
+        </rect>
+        <text 
+            :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" 
+            text-anchor="middle" dominant-baseline="central"
+            style="user-select: none">
+            {{ text() }}
+        </text>
+        </svg>
+        `
+    })
 
 new Vue(
 {
