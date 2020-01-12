@@ -1,4 +1,9 @@
 export enum GateType {H, X, CN, C, N}
+export function gateTypeName(gateType: GateType): string | null{
+    const map = new Map([[GateType.H, "H"], [GateType.X, "X"]])
+    const res = map.get(gateType)
+    return res ? res : null
+}
 
 export class Circuit {
     numQbit: number

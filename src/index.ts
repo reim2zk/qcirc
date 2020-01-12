@@ -27,7 +27,6 @@ function up(e: MouseEvent) {
 function add(gateType: GateType) {
     if(!selectedOneGate) {
         const gate = circuit.emptyGate(gateType)
-        console.log(gate)
         if(gate instanceof OneGate) {
             selectedOneGate = gate
         } else if(gate instanceof CNot) {
@@ -171,25 +170,35 @@ Vue.component('hadamal', {
     props: {
         gate: Hadamal,
     },    
-    template: `<rect
+    template: `<svg><rect
         v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" 
         v-bind:height="gate.diameter"
-        stroke="black"
         fill="yellow"
-    ></rect>
+    >
+    </rect>
+    <text 
+        :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
+        H
+    </text>
+    </svg>
     `
 })
 Vue.component('x-gate', {
     props: {
         gate: XGate,
     },
-    template: `<rect
+    template: `<svg>
+    <rect
         v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
         v-bind:width="gate.diameter" v-bind:height="gate.diameter"
-        stroke="black"
-        fill="white"
-    ></rect>
+        fill="cyan">
+    </rect>
+    <text 
+        :x="gate.x()" :y="gate.y()" :font-size="gate.diameter" text-anchor="middle" dominant-baseline="central">
+    X
+    </text>
+    </svg>
     `
 })
 
