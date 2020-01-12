@@ -135,17 +135,24 @@ Vue.component('controled-not', {
         <circle
             :cx="gate.x()"
             :cy="gate.yControl()"
-            :r="3"
+            :r="gate.radiusControl"
             fill="black">
         </circle>
         <circle
             :cx="gate.x()"
             :cy="gate.yNot()"
-            :r="6"
+            :r="gate.radiusTarget"
             stroke="black"
             fill="white">
-    </circle>
-        </svg>
+        </circle>
+        <text 
+            :x="gate.x()" :y="gate.yNot()-1" 
+            :font-size="gate.radiusTarget*2" 
+            text-anchor="middle" dominant-baseline="central"
+            style="user-select: none">
+            +
+        </text>
+    </svg>
         `
     })
 Vue.component('one-gate', {
@@ -158,19 +165,20 @@ Vue.component('one-gate', {
                     case GateType.H: return "cyan"; break
                     case GateType.X: return "yellow"; break
                 }
-                return "cyan"
+                return "white"
             },
             text: function(): string {
                 switch(this.gate.type) {
                     case GateType.H: return "H"; break
                     case GateType.X: return "X"; break
                 }
-                return "NotF"
+                return "NotFound"
             }
         },
         template: `<svg>
         <rect
-            v-bind:x="gate.rx()" v-bind:y="gate.ry()" 
+            v-bind:x="gate.x() - gate.diameter / 2"
+            v-bind:y="gate.y() - gate.diameter / 2" 
             v-bind:width="gate.diameter" 
             v-bind:height="gate.diameter"
             :fill="color()"

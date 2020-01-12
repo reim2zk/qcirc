@@ -21,12 +21,12 @@ export class Circuit {
     wireYs(): number[] { 
         let ys = []
         for(let i = 0; i < this.numQbit; i++) {
-            ys.push(this.y(i, 0.0))
+            ys.push(this.y(i))
         }
         return ys
     }
-    x(position: number, r: number): number { return (position+0.5) * this.unitWidth - r}
-    y(indexQbit: number, r: number): number { return (indexQbit+0.5) * this.unitHeight - r}
+    x(position: number): number { return (position+0.5) * this.unitWidth }
+    y(indexQbit: number): number { return (indexQbit+0.5) * this.unitHeight }
     position(x: number): number { return Math.floor(x / this.unitWidth) }
     indexQbit(y: number): number { return Math.floor(y / this.unitHeight) }
     findGate(position: number, indexQbit: number): {gate: Gate, index: number} | null {
@@ -68,17 +68,22 @@ export class ControledNot extends Gate {
     indexQbitControl: number
     indexQbitNot: number
     position: number
+    radiusControl: number
+    radiusTarget: number
     static indexControl = 1
-    static indexTarget = 2
+    static indexTarget = 2    
     constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
         super(GateType.CN, circuit)
         this.indexQbitControl = indexQbit1
         this.indexQbitNot = indexQbit2
         this.position = position
+        const d = Math.min(this.circuit.unitHeight, this.circuit.unitWidth)
+        this.radiusControl = Math.round(d * 0.15)
+        this.radiusTarget = Math.round(d * 0.4)
     }
-    x(): number { return this.circuit.x(this.position, 0) } 
-    yControl(): number { return this.circuit.y(this.indexQbitControl, 0) }
-    yNot(): number { return this.circuit.y(this.indexQbitNot, 0) }
+    x(): number { return this.circuit.x(this.position) } 
+    yControl(): number { return this.circuit.y(this.indexQbitControl) }
+    yNot(): number { return this.circuit.y(this.indexQbitNot) }
     findPart(position: number, indexQbit: number): number | null {
         if(this.indexQbitControl == indexQbit && this.position == position) {
             return ControledNot.indexControl
@@ -102,18 +107,17 @@ export class ControledNot extends Gate {
 export class OneGate extends Gate {
     indexQbit: number
     position: number
-    diameter: number = 15
+    diameter: number
     constructor(type: GateType, circuit: Circuit, indexQbit:number, position: number) {
         super(type, circuit)
         this.indexQbit = indexQbit
         this.position = position
+        this.diameter = Math.round(Math.min(this.circuit.unitHeight, this.circuit.unitWidth) * 0.7)
     }
     width(): number { return this.circuit.unitWidth }
     height(): number { return this.circuit.unitHeight }
-    rx(): number { return this.x() - this.diameter / 2 }
-    ry(): number { return this.y() - this.diameter / 2 }
-    x(): number { return this.circuit.x(this.position, 0) } 
-    y(): number { return this.circuit.y(this.indexQbit, 0) }
+    x(): number { return this.circuit.x(this.position) } 
+    y(): number { return this.circuit.y(this.indexQbit) }
     findPart(position: number, indexQbit: number): number | null {
         if(this.indexQbit == indexQbit && this.position == position) {
             return 1
