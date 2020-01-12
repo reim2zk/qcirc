@@ -1,3 +1,5 @@
+export enum GateType {H, X, CN, C, N}
+
 export class Circuit {
     numQbit: number
     numPosition: number = 10
@@ -36,16 +38,32 @@ export class Circuit {
         const res = oneGates.find(gate => gate.position == position && gate.indexQbit == indexQbit)
         return res ? res : null
     }
+    emptyGate(type: GateType): Gate {
+        let g: Gate
+        switch(type) {
+            case GateType.H: g = new Hadamal(this, 0, 0)
+            case GateType.X: g = new XGate(this, 0, 0)
+            case GateType.CN: g = new CNot(this, 0, 1, 0)
+            case GateType.C: g = new ControlGate(this, 0, 0)
+            case GateType.N: g = new NotGate(this, 0, 0)
+        }
+        return g
+    }
 }
 
-export class Gate {}
+export class Gate {
+    type: GateType
+    constructor(type: GateType) {
+        this.type = type
+    }
+}
 
 export class CNot extends Gate {
     readonly circuit: Circuit
     controlGate: ControlGate
     notGate: NotGate
     constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
-        super()
+        super(GateType.CN)
         this.circuit = circuit
         this.controlGate = new ControlGate(circuit, indexQbit1, position)
         this.notGate = new NotGate(circuit, indexQbit2, position)
@@ -58,8 +76,8 @@ export class OneGate extends Gate {
     position: number
     
     diameter: number = 15
-    constructor(circuit: Circuit, indexQbit:number, position: number) {
-        super()
+    constructor(type: GateType, circuit: Circuit, indexQbit:number, position: number) {
+        super(type)
         this.circuit = circuit
         this.indexQbit = indexQbit
         this.position = position
@@ -80,24 +98,24 @@ export class OneGate extends Gate {
 
 export class ControlGate extends OneGate {
     constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(circuit, indexQbit, position)
+        super(GateType.C, circuit, indexQbit, position)
     }
 }
 
 export class NotGate extends OneGate {
     constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(circuit, indexQbit, position)
+        super(GateType.N, circuit, indexQbit, position)
     }
 }
 
 export class Hadamal extends OneGate {    
     constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(circuit, indexQbit, position)
+        super(GateType.H, circuit, indexQbit, position)
     }    
 }
 
 export class XGate extends OneGate {
     constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(circuit, indexQbit, position)
+        super(GateType.X, circuit, indexQbit, position)
     }    
 }

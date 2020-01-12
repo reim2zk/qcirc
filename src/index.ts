@@ -1,5 +1,11 @@
 import Vue from 'vue';
-import {Gate, CNot, Hadamal, XGate, ControlGate, NotGate, OneGate, Circuit} from './model'
+import {Gate, CNot, Hadamal, XGate, ControlGate, NotGate, OneGate, Circuit, GateType} from './model'
+
+const circuit = new Circuit(5, [])
+circuit.gates.push(new CNot(circuit, 0, 1, 0))
+circuit.gates.push(new Hadamal(circuit, 1, 2))
+circuit.gates.push(new XGate(circuit, 1, 4))
+circuit.gates.push(new Hadamal(circuit, 2, 0))
 
 let selectedOneGate: OneGate | null = null
 function down(e: MouseEvent) {
@@ -18,10 +24,49 @@ function up(e: MouseEvent) {
         selectedOneGate = null
     }
 }
+function add(gateType: GateType) {
+    if(!selectedOneGate) {
+        const gate = circuit.emptyGate(gateType)
+        if(gate instanceof OneGate) {
+            selectedOneGate = gate
+        } else if(gate instanceof CNot) {
+            selectedOneGate = gate.controlGate
+        }
+        circuit.gates.push(gate)
+    }
+}
+
+export class GateNameTypes {
+    values: {name: string, type: GateType}[]
+    static default(): GateNameTypes {
+        const values = []
+        values.push({name: "H", type: GateType.H})
+        values.push({name: "X", type: GateType.X})
+        return new GateNameTypes(values)
+    }
+    constructor(values: {name: string, type: GateType}[]) {
+        this.values = values
+    }
+}
+const gateNameTypes = GateNameTypes.default()
+console.log(gateNameTypes)
+Vue.component('circuit-ui', {
+    data: function() {
+        return {
+            gateNameTypes: gateNameTypes
+        }
+    },
+    methods: {
+        add: add
+    },
+    template: `
+    <button v-on:click="add(gateNameTypes.values[0].type)">hello</button>        
+    `
+})
 
 Vue.component('circuit', {
     props: {
-        value: Circuit
+        circuit: Circuit
     },
     methods: {
         move: move,
@@ -30,13 +75,13 @@ Vue.component('circuit', {
     },
     template: `
     <svg 
-        v-bind:width="value.width()" 
-        v-bind:height="value.height()" 
+        v-bind:width="circuit.width()" 
+        v-bind:height="circuit.height()" 
         v-on:mousemove="move"
         v-on:mousedown="down"
         v-on:mouseup="up">
-        <line v-for="y in value.wireYs()" x1="0" v-bind:y1="y" x2="100" v-bind:y2="y" stroke="black"></line>
-        <template v-for="gate in value.gates">
+        <line v-for="y in circuit.wireYs()" x1="0" v-bind:y1="y" x2="100" v-bind:y2="y" stroke="black"></line>
+        <template v-for="gate in circuit.gates">
             <gate v-bind:gate="gate"></gate>
         </template>
     </svg>
@@ -141,12 +186,6 @@ Vue.component('x-gate', {
     `
 })
 
-const circuit = new Circuit(5, [])
-circuit.gates.push(new CNot(circuit, 0, 1, 0))
-circuit.gates.push(new Hadamal(circuit, 1, 2))
-circuit.gates.push(new XGate(circuit, 1, 4))
-circuit.gates.push(new Hadamal(circuit, 2, 0))
-
 new Vue(
 {
     el: '#app',
@@ -154,7 +193,8 @@ new Vue(
         title: 'he',
         x: 10,
         y: 10,
-        circuit: circuit
+        circuit: circuit,
+        gateNameTypes: gateNameTypes
     },
     filters: {
         strPlus2: function (value: string): string {
