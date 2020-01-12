@@ -21,6 +21,19 @@ export class Circuit {
     y(indexQbit: number, r: number): number { return (indexQbit+0.5) * this.unitHeight - r}
     position(x: number): number { return Math.floor(x / this.unitWidth) }
     indexQbit(y: number): number { return Math.floor(y / this.unitHeight) }
+    findOneGate(x: number, y: number): OneGate | null {
+        const position = this.position(x)
+        const indexQbit = this.indexQbit(y)
+
+        for(const gate of this.gates) {
+            if(gate instanceof OneGate) {
+                if(gate.position == position && gate.indexQbit == indexQbit) {
+                    return gate
+                }
+            }
+        }
+        return null
+    }
 }
 
 export class Gate {}
