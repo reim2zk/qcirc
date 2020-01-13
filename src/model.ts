@@ -1,4 +1,4 @@
-export enum GateType {H, X, CN}
+export enum GateType {H, X, Y, Z, CN}
 export enum QbitType {Q0, Q1}
 
 export class Qbit {
@@ -47,6 +47,8 @@ export class Circuit {
         switch(type) {
             case GateType.H: g = new Hadamal(0, 0); break
             case GateType.X: g = new XGate(0, 0); break
+            case GateType.Y: g = new YGate(0, 0); break
+            case GateType.Z: g = new ZGate(0, 0); break
             case GateType.CN: g = new ControledNot(0, 1, 0); break
         }
         return g
@@ -129,3 +131,16 @@ export class XGate extends OneGate {
         super(GateType.X, indexQbit, position)
     }    
 }
+
+export class YGate extends OneGate {
+    constructor(indexQbit: number, position: number) {
+        super(GateType.Y, indexQbit, position)
+    }    
+}
+
+export class ZGate extends OneGate {
+    constructor(indexQbit: number, position: number) {
+        super(GateType.Z, indexQbit, position)
+    }    
+}
+

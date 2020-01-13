@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {Gate, Hadamal, XGate, OneGate, Circuit, GateType, Qbit, QbitType, ControledNot} from './model'
+import {Gate, Hadamal, XGate, YGate, ZGate, OneGate, Circuit, GateType, Qbit, QbitType, ControledNot} from './model'
 
 enum PositionType {
     InitQbit = -1,
@@ -112,6 +112,8 @@ Vue.component('circuit-ui', {
             gateNameTypes: [
                 {name: "H", type: GateType.H},
                 {name: "X", type: GateType.X},
+                {name: "Y", type: GateType.Y},
+                {name: "Z", type: GateType.Z},
                 {name: "CN", type: GateType.CN}
             ]
         }
@@ -130,9 +132,11 @@ Vue.component('circuit-ui', {
 })
 
 Vue.component('circuit', {
-    props: {
-        circuit: Circuit,
-        circuitView: CircuitView
+    data: function() {
+        return {
+            circuit: circuit,
+            circuitView: circuitView
+        }
     },
     methods: {
         move: move,
@@ -153,6 +157,13 @@ Vue.component('circuit', {
                 return {y: y, text: text, measure: v.measure}
             })
             return res
+        },
+        pathSvg: function(y: number): string {
+            const r = this.circuitView.gateRadius
+            const x0 = this.wireX1() - r
+            const y0 = y + r
+            const path = `M ${x0},${y0} a ${r} ${r} 180 0 1 ${r*2},0`
+            return path
         }
     },
     template: `
@@ -178,12 +189,22 @@ Vue.component('circuit', {
             >
                 {{ qbit.text }}
             </text>
-            <circle v-if="qbit.measure"
-                :cx="wireX1()"
-                :cy="qbit.y"
-                :r="5"
-                fill="black">
-            </circle>
+            <rect
+                v-if="qbit.measure"
+                :x="wireX1() - circuitView.gateRadius"
+                :y="qbit.y   - circuitView.gateRadius"
+                :width="circuitView.gateRadius*2"
+                :height="circuitView.gateRadius*2"
+                fill="green">
+            </rect>
+            <path v-if="qbit.measure" :d="pathSvg(qbit.y)" fill="none" stroke="black"/>
+            <line v-if="qbit.measure" 
+                :x1="wireX1()" 
+                :y1="qbit.y+circuitView.gateRadius" 
+                :x2="wireX1()+2*circuitView.gateRadius*0.3"
+                :y2="qbit.y-2*circuitView.gateRadius*0.8 + circuitView.gateRadius" 
+                stroke="black">
+            </line>
         </template>        
         <template v-for="gate in circuit.gates">
             <gate :gate="gate" :circuitView="circuitView"></gate>
@@ -278,7 +299,7 @@ Vue.component('one-gate', {
             color: function(): string {
                 switch(this.gate.type) {
                     case GateType.H: return "cyan"; break
-                    case GateType.X: return "yellow"; break
+                    default: return "yellow";  break
                 }
                 return "white"
             },
@@ -286,6 +307,8 @@ Vue.component('one-gate', {
                 switch(this.gate.type) {
                     case GateType.H: return "H"; break
                     case GateType.X: return "X"; break
+                    case GateType.Y: return "Y"; break
+                    case GateType.Z: return "Z"; break
                 }
                 return "NotFound"
             },
