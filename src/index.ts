@@ -47,16 +47,20 @@ class CircuitView {
     }    
 }
 
-const circuit = new Circuit([
-    new Qbit(QbitType.Q0, true), 
-    new Qbit(QbitType.Q0, false), 
-    new Qbit(QbitType.Q1, true), 
-    new Qbit(QbitType.Q0, false), 
-    new Qbit(QbitType.Q0, false)])
-circuit.gates.push(new ControledNot(circuit, 2, 3, 3))
-circuit.gates.push(new Hadamal(circuit, 1, 2))
-circuit.gates.push(new XGate(circuit, 1, 4))
-circuit.gates.push(new Hadamal(circuit, 2, 0))
+const circuit = new Circuit(
+    [
+        new ControledNot(2, 3, 3),
+        new Hadamal(1, 2),
+        new XGate(1, 4),
+        new Hadamal(2, 0)
+    ], 
+    [
+        new Qbit(QbitType.Q0, true), 
+        new Qbit(QbitType.Q0, false), 
+        new Qbit(QbitType.Q1, true), 
+        new Qbit(QbitType.Q0, false), 
+        new Qbit(QbitType.Q0, false)
+    ])
 const circuitView = new CircuitView(20, 20, 9)
 
 let selectedOneGate: Gate | null = null

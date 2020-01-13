@@ -28,9 +28,9 @@ export class Circuit {
     numPosition: number = 10
     gates: Gate[]
     qbits: Qbit[]
-    constructor(qbits: Qbit[]) {
+    constructor(gates: Gate[], qbits: Qbit[]) {
         this.numQbit = qbits.length
-        this.gates = []
+        this.gates = gates
         this.qbits = qbits
     }
     findGate(position: number, indexQbit: number): {gate: Gate, index: number} | null {
@@ -45,9 +45,9 @@ export class Circuit {
     emptyGate(type: GateType): Gate {
         let g: Gate
         switch(type) {
-            case GateType.H: g = new Hadamal(this, 0, 0); break
-            case GateType.X: g = new XGate(this, 0, 0); break
-            case GateType.CN: g = new ControledNot(this, 0, 1, 0); break
+            case GateType.H: g = new Hadamal(0, 0); break
+            case GateType.X: g = new XGate(0, 0); break
+            case GateType.CN: g = new ControledNot(0, 1, 0); break
         }
         return g
     }
@@ -55,10 +55,8 @@ export class Circuit {
 
 export class Gate {
     type: GateType
-    readonly circuit: Circuit
-    constructor(type: GateType, circuit: Circuit) {
+    constructor(type: GateType) {
         this.type = type
-        this.circuit = circuit
     }
     findPart(position: number, indexQbit: number): number | null {
         console.log("do not call")
@@ -75,14 +73,11 @@ export class ControledNot extends Gate {
     position: number
     static indexControl = 1
     static indexTarget = 2    
-    constructor(circuit: Circuit, indexQbit1: number, indexQbit2: number, position: number) {
-        super(GateType.CN, circuit)
+    constructor(indexQbit1: number, indexQbit2: number, position: number) {
+        super(GateType.CN)
         this.indexQbitControl = indexQbit1
         this.indexQbitNot = indexQbit2
         this.position = position
-        // const d = Math.min(this.circuit.unitHeight, this.circuit.unitWidth)
-        // this.radiusControl = Math.round(d * 0.15)
-        // this.radiusTarget = Math.round(d * 0.4)
     }
     findPart(position: number, indexQbit: number): number | null {
         if(this.indexQbitControl == indexQbit && this.position == position) {
@@ -105,8 +100,8 @@ export class ControledNot extends Gate {
 export class OneGate extends Gate {
     indexQbit: number
     position: number
-    constructor(type: GateType, circuit: Circuit, indexQbit:number, position: number) {
-        super(type, circuit)
+    constructor(type: GateType, indexQbit:number, position: number) {
+        super(type)
         this.indexQbit = indexQbit
         this.position = position
     }
@@ -124,13 +119,13 @@ export class OneGate extends Gate {
 }
 
 export class Hadamal extends OneGate {    
-    constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(GateType.H, circuit, indexQbit, position)
+    constructor(indexQbit: number, position: number) {
+        super(GateType.H, indexQbit, position)
     }    
 }
 
 export class XGate extends OneGate {
-    constructor(circuit: Circuit, indexQbit: number, position: number) {
-        super(GateType.X, circuit, indexQbit, position)
+    constructor(indexQbit: number, position: number) {
+        super(GateType.X, indexQbit, position)
     }    
 }
