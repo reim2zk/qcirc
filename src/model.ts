@@ -1,12 +1,37 @@
 export enum GateType {H, X, CN}
+export enum QbitType {Q0, Q1}
+
+export class Qbit {
+    type: QbitType  
+    measure: boolean
+    constructor(type: QbitType, measure: boolean) {
+        this.type = type
+        this.measure = measure
+    }
+    swapQbit(): void {
+        switch(this.type) {
+            case QbitType.Q0:
+                this.type = QbitType.Q1
+                break
+            case QbitType.Q1:
+                this.type = QbitType.Q0
+                break
+        }
+    }
+    swapMeasure(): void {
+        this.measure = !this.measure
+    }
+}
 
 export class Circuit {
     numQbit: number
     numPosition: number = 10
     gates: Gate[]
-    constructor(numQBit: number, gates: Gate[]) {
-        this.numQbit = numQBit
-        this.gates = gates
+    qbits: Qbit[]
+    constructor(qbits: Qbit[]) {
+        this.numQbit = qbits.length
+        this.gates = []
+        this.qbits = qbits
     }
     findGate(position: number, indexQbit: number): {gate: Gate, index: number} | null {
         for(const gate of this.gates) {

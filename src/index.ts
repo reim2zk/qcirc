@@ -1,49 +1,83 @@
 import Vue from 'vue';
-import {Gate, Hadamal, XGate, OneGate, Circuit, GateType, ControledNot} from './model'
+import {Gate, Hadamal, XGate, OneGate, Circuit, GateType, Qbit, QbitType, ControledNot} from './model'
 
+enum PositionType {
+    InitQbit = -1,
+    Gate = -2,
+    Measure = -3
+}
 class CircuitView {
     unitWidth: number
     unitHeight: number
     gateRadius: number
-    dotRadius: number
+    dotRadius: number    
+    qbitWidth: number
+    measureWidth: number
     constructor(unitWidth: number, unitHeight: number, gateRadius: number) {
         this.unitHeight = unitHeight
         this.unitWidth = unitWidth
         this.gateRadius = gateRadius
-        this.dotRadius = gateRadius*0.3
+        this.dotRadius = gateRadius * 0.3
+        this.qbitWidth = unitWidth * 1.5
+        this.measureWidth = unitWidth * 1.3
     }
-    position(x: number): number { 
-        return Math.floor(x / this.unitWidth) 
+    width(): number { 
+        return this.qbitWidth + circuit.numPosition * this.unitWidth + this.measureWidth
+    }
+    height(): number { 
+        return (circuit.numQbit+1) * circuitView.unitHeight 
+    }
+    position(x: number): number | PositionType.InitQbit | PositionType.Measure { 
+        if(x < this.qbitWidth) {
+            return PositionType.InitQbit
+        } else if (x > this.qbitWidth + this.unitWidth * 10) {
+            return PositionType.Measure
+        } else {
+            return Math.floor((x - this.qbitWidth) / this.unitWidth) 
+        }
     }
     indexQbit(y: number): number { 
         return Math.floor(y / this.unitHeight) 
     }
     x(position: number): number { 
-        return (position + 0.5) * this.unitWidth 
+        return (position + 0.5) * this.unitWidth + this.qbitWidth
     }
     y(indexQbit: number): number { 
         return (indexQbit + 0.5) * this.unitHeight 
     }    
 }
 
-const circuit = new Circuit(5, [])
+const circuit = new Circuit([
+    new Qbit(QbitType.Q0, true), 
+    new Qbit(QbitType.Q0, false), 
+    new Qbit(QbitType.Q1, true), 
+    new Qbit(QbitType.Q0, false), 
+    new Qbit(QbitType.Q0, false)])
 circuit.gates.push(new ControledNot(circuit, 2, 3, 3))
 circuit.gates.push(new Hadamal(circuit, 1, 2))
 circuit.gates.push(new XGate(circuit, 1, 4))
 circuit.gates.push(new Hadamal(circuit, 2, 0))
-const circuitView = new CircuitView(20, 30, 10)
+const circuitView = new CircuitView(20, 20, 9)
 
 let selectedOneGate: Gate | null = null
 let partIndex: number = 0
 function down(e: MouseEvent) {
     if(!selectedOneGate) {
         const position = circuitView.position(e.offsetX)
-        const indexQbit = circuitView.indexQbit(e.offsetY)
-        const res = circuit.findGate(position, indexQbit)
-        if(res) {
-            selectedOneGate = res.gate
-            partIndex = res.index
-        }        
+        if (position == PositionType.InitQbit) {
+            const indexQbit = circuitView.indexQbit(e.offsetY)
+            circuit.qbits[indexQbit].swapQbit()
+        } else if (position == PositionType.Measure) {
+            const indexQbit = circuitView.indexQbit(e.offsetY)
+            circuit.qbits[indexQbit].swapMeasure()
+        } else {
+            const indexQbit = circuitView.indexQbit(e.offsetY)
+            const res = circuit.findGate(position, indexQbit)
+            if(res) {
+                selectedOneGate = res.gate
+                partIndex = res.index
+            }        
+        }
     }
 }
 function move(e: MouseEvent) {
@@ -68,24 +102,14 @@ function add(gateType: GateType) {
     }
 }
 
-export class GateNameTypes {
-    values: {name: string, type: GateType}[]
-    static default(): GateNameTypes {
-        const values = []
-        values.push({name: "H", type: GateType.H})
-        values.push({name: "X", type: GateType.X})
-        values.push({name: "CN", type: GateType.CN})
-        return new GateNameTypes(values)
-    }
-    constructor(values: {name: string, type: GateType}[]) {
-        this.values = values
-    }
-}
-const gateNameTypes = GateNameTypes.default()
 Vue.component('circuit-ui', {
     data: function() {
         return {
-            gateNameTypes: gateNameTypes
+            gateNameTypes: [
+                {name: "H", type: GateType.H},
+                {name: "X", type: GateType.X},
+                {name: "CN", type: GateType.CN}
+            ]
         }
     },
     methods: {
@@ -93,7 +117,7 @@ Vue.component('circuit-ui', {
     },
     template: `
     <span>
-        <button v-for="nameType in gateNameTypes.values" 
+        <button v-for="nameType in gateNameTypes" 
         v-on:click="add(nameType.type)">
         {{nameType.name}}
         </button>        
@@ -110,27 +134,55 @@ Vue.component('circuit', {
         move: move,
         down: down,
         up: up,
-        width: function(): number { return circuit.numPosition * circuitView.unitWidth },
-        height: function(): number { return (circuit.numQbit+1) * circuitView.unitHeight },
-        wireYs: function(): number[] {
-            let ys = []
-            for(let i = 0; i < circuit.numQbit; i++) {
-                ys.push(circuitView.y(i))
-            }
-            return ys
-        },
-        getCircuitView: function(): CircuitView { return circuitView },
+        wireX0: function(): number { return circuitView.qbitWidth},
+        wireX1: function(): number { return circuitView.x(circuit.numPosition) - circuitView.unitWidth/2},
+        qbits: function(): {y: number, text: string, measure: boolean}[] {
+            const res = circuit.qbits.map((v, i) => {
+                const y = circuitView.y(i)
+                let text = ""
+                if(v.type == QbitType.Q0) {
+                    text = "0"
+                } else if (v.type == QbitType.Q1) {
+                    text = "1"
+                }
+                text = "|" + text + ">"
+                return {y: y, text: text, measure: v.measure}
+            })
+            return res
+        }
     },
     template: `
     <svg 
-        v-bind:width="width()" 
-        v-bind:height="height()" 
+        v-bind:width="circuitView.width()" 
+        v-bind:height="circuitView.height()" 
         v-on:mousemove="move"
         v-on:mousedown="down"
         v-on:mouseup="up">
-        <line v-for="y in wireYs()" x1="0" v-bind:y1="y" x2="100" v-bind:y2="y" stroke="black"></line>
+        <template v-for="qbit in qbits()">
+            <line
+                :x1="wireX0()" 
+                :y1="qbit.y" 
+                :x2="wireX1()" 
+                :y2="qbit.y" 
+                stroke="black"></line>
+            <text
+                x="0" 
+                :y="qbit.y-1" 
+                text-anchor="left" 
+                dominant-baseline="central"
+                style="user-select: none"
+            >
+                {{ qbit.text }}
+            </text>
+            <circle v-if="qbit.measure"
+                :cx="wireX1()"
+                :cy="qbit.y"
+                :r="5"
+                fill="black">
+            </circle>
+        </template>        
         <template v-for="gate in circuit.gates">
-            <gate :gate="gate" :circuitView="getCircuitView()"></gate>
+            <gate :gate="gate" :circuitView="circuitView"></gate>
         </template>
     </svg>
     `
@@ -147,21 +199,20 @@ Vue.component('gate', {
         },
         oneGate: function(): OneGate | null {
             return this.gate instanceof OneGate ? this.gate : null
-        },
-        getCircuitView: function(): CircuitView { return circuitView },
+        }
     },
     template: `
     <controled-not v-if="controledNot()" 
         :gate="controledNot()"
         :radiusControl="circuitView.gateRadius * 0.4"
         :radiusTarget="circuitView.gateRadius"
-        :circuitView="getCircuitView()"
+        :circuitView="circuitView"
         >
     </controled-not>    
     <one-gate v-else-if="oneGate()" 
         :gate="oneGate()"
         :diameter="circuitView.gateRadius * 2"
-        :circuitView="getCircuitView()"
+        :circuitView="circuitView"
         >
     </one-gate>
     `    
@@ -264,6 +315,5 @@ new Vue(
     data: {
         circuit: circuit,
         circuitView: circuitView,
-        gateNameTypes: gateNameTypes
     }
 })
